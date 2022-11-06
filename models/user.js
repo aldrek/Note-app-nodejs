@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema({
         default: Date.now()
     }
 
-})
+}, { collection: 'user' })
 
 // Hashing the password before store it in the database 
 userSchema.pre('save', function (next){
