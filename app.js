@@ -8,15 +8,20 @@ const userRouter = require('./routes/user')
 const noteRouter = require('./routes/note');
 const note = require('./models/note');
 
+var morgan = require('morgan')
+
 require('dotenv').config()
 
 const app = express()
+app.use(morgan('combined'))
 
 const port = process.env.PORT;
 
 // Register routers
 app.use('/users', userRouter)
 app.use('/note', noteRouter)
+
+app.use(morgan('combined'))
 
 mongoose.connect(process.env.SERVER, {
     useNewUrlParser: true,
