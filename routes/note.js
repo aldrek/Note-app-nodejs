@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router();
 const Note = require('../models/note');
+const noteController = require('../controllers/noteController')
 
 router.get('/' , async function(req , res){
 
@@ -16,5 +17,8 @@ router.get('/' , async function(req , res){
     })
     res.send('success')
 })
+
+router.get('/list', noteController.getNotes)
+
 
 module.exports = router

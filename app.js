@@ -18,7 +18,7 @@ app.use(morgan('combined'))
 const port = process.env.PORT;
 
 // Register routers
-app.use('/users', userRouter)
+app.use('/user', userRouter)
 app.use('/note', noteRouter)
 
 app.use(morgan('combined'))
@@ -30,10 +30,6 @@ mongoose.connect(process.env.SERVER, {
     console.log("Database connected")
 }).catch(() => {
     console.log("Database fail to connect")
-})
-
-app.use('/', function (req, res) {
-    res.send('Hello World')
 })
 
 // This method will be called before any request
