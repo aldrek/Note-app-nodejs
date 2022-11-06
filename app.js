@@ -1,9 +1,15 @@
 const mongoose = require('mongoose')
 const express = require('express')
-const app = express()
+const userRouter = require('./routes/user')
+const User = require('./models/user');
 require('dotenv').config()
 
+const app = express()
+
 const port = process.env.PORT;
+
+// Register routers
+app.use( '/users' , userRouter)
 
 mongoose.connect( process.env.SERVER , { 
     useNewUrlParser: true,
