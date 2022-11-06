@@ -1,0 +1,14 @@
+{
+  "name": "full-note-app-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ahmed salman",
+  "license": "ISC",
+  "dependencies": {
+    "mongoose": "^6.7.1"
+  }
+}
