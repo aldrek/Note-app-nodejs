@@ -7,6 +7,7 @@ module.exports = (req , res , next) => {
         res.send({
             error : "You are not allowed to use this api"
         })
+    }else{
+        next()
     }
-    next()
 }

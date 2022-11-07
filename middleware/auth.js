@@ -11,16 +11,17 @@ module.exports = async (req, res, next) => {
     try {
 
         // Fetch token then check if it's jwt valid stuture
-        const token = req.header.authorization.replace('Bearer ', '')
+        const token = req.header('Authorization').replace('Bearer ', '')
         const decodedToken = jwt.verify(token, 'TOKEN')
 
         // Exract userId from token
         const userId = decodedToken.userId
+        console.log(userId)
 
         // Check if this userId from token is the same
         if (req.body.userId && req.body.userId != userId) {
             throw 'Invalid user ID';
-        } else {
+            } else {
 
             const user = await User.findOne({_id : /*decodedToken._id*/ userId , 'tokens.token' : header })
             req.user = user
@@ -30,10 +31,12 @@ module.exports = async (req, res, next) => {
         }
 
     } catch (e) {
-        res.status(401).json({
-            error: new Error('Invalid request!')
-        });
-    }
+    
+        console.log(e)
+        res.status(401).send({
+            error: 'Invalid token!'
+        })
 
+    }
 
 }

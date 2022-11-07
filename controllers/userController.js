@@ -1,6 +1,5 @@
 const express = require('express');
 var userController = {};
-const auth = require('../middleware/auth')
 
 // return user info
 userController.getUserInfo = (req, res) => {
