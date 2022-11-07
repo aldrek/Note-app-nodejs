@@ -28,6 +28,14 @@ const userSchema = new mongoose.Schema({
     }, created_at: {
         type: Date,
         default: Date.now()
+    }, tokens : [{
+        token: {
+            type : String ,
+            required: true
+        }
+    } ],
+    avatar: {
+        type: Buffer
     }
 
 }, { collection: 'user' })
