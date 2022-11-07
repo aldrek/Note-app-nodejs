@@ -32,11 +32,13 @@ mongoose.connect(process.env.SERVER, {
     console.log("Database fail to connect")
 })
 
-// This method will be called before any request
-app.use((req, res, next) => {
-    console.log(req.method, req.path)
-    next()
-})
+// // This method will be called before any request
+// const loggerMiddleware = (req, res, next) => {
+//     console.log('New request to: ' + req.method + ' ' + req.path)
+//     next()
+// }
+
+// app.use(loggerMiddleware)
 
 app.listen(process.env.PORT | 3000, () => {
     console.log(`Server Has Started`);

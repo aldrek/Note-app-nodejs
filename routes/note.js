@@ -18,7 +18,13 @@ router.get('/' , async function(req , res){
     res.send('success')
 })
 
-router.get('/list', noteController.getNotes)
+router.get('/admin/list', noteController.getAnyOrAllNotes)
+router.put('/admin/update/:uid', noteController.editAnyNote)
+router.delete('/admin/delete/:uid', noteController.deleteAnyNote)
 
+router.post('/create', noteController.createNote)
+router.get('/:uid', noteController.getNotesInfo)
+router.put('/update/:uid', noteController.editNote)
+router.delete('/delete/:uid', noteController.deleteNote)
 
 module.exports = router
