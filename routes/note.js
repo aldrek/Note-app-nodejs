@@ -1,6 +1,8 @@
 const express = require('express')
 const router = express.Router();
 const Note = require('../models/note');
+const apiAuth = require('../middleware/apiAuth')
+const userAuth = require('../middleware/auth')
 const noteController = require('../controllers/noteController')
 
 router.get('/' , async function(req , res){
@@ -22,9 +24,10 @@ router.get('/admin/list', noteController.getAnyOrAllNotes)
 router.put('/admin/update/:uid', noteController.editAnyNote)
 router.delete('/admin/delete/:uid', noteController.deleteAnyNote)
 
-router.post('/create', noteController.createNote)
-router.get('/:uid', noteController.getNotesInfo)
-router.put('/update/:uid', noteController.editNote)
-router.delete('/delete/:uid', noteController.deleteNote)
+router.post('/create',apiAuth , userAuth ,   noteController.createNote)
+router.get('/all', apiAuth , userAuth , noteController.getAllNotesInfo)
+router.get('/:uid', apiAuth , userAuth , noteController.getNotesInfo)
+router.put('/update/:uid', apiAuth , userAuth , noteController.editNote)
+router.delete('/delete/:uid',  apiAuth , userAuth , noteController.deleteNote)
 
 module.exports = router

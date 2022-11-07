@@ -44,6 +44,12 @@ const userSchema = new mongoose.Schema({
 
 }, { collection: 'user' })
 
+userSchema.virtual('notes', {
+    ref: 'note',
+    localField: '_id',
+    foreignField: 'owner'
+})
+
 // funtion to hash passaword using genSaltSync and hashSync 
 userSchema.methods.hashPassword = function () {
     var salt = bcrypt.genSaltSync(10)
@@ -80,7 +86,6 @@ userSchema.methods.toJSON = function () {
 
     delete obj.tokens;
     delete obj.password;
-    delete obj._id;
     delete obj.__v;
 
     return obj;

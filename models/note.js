@@ -9,15 +9,22 @@ const noteSchema = mongoose.Schema({
         require : true
     }, modified: {
         type: Date,
-        default : ""
+        default: Date.now()
     }, created_at: {
         type: Date,
         default: Date.now()
     }, owner : {
         type : mongoose.Schema.Types.ObjectId , 
-        ref : 'user'
+        ref : 'user',
+        required: true
     }
 
 }, { collection: 'note' })
+
+noteSchema.virtual('note', {
+    ref: 'note',
+    localField: '_id',
+    foreignField: 'owner'
+})
 
 module.exports = mongoose.model('note' , noteSchema);
