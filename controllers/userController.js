@@ -6,7 +6,13 @@ const Note = require('../models/note')
 
 // return user info
 userController.getUserInfo = (req, res) => {
-    res.send('getUserInfo')
+
+    res.json({
+        status : true,
+        message : "Success",
+        data : req.user
+    })
+
 };
 
 // return the authenticated info 
@@ -67,16 +73,7 @@ userController.register = async (req, res) => {
 
 };
 
-// Edit user by [id]
-userController.editUser = (req, res) => {
-    res.send('editUser')
-};
-
-// Delete user by [id]
-userController.deleteUser = (req, res) => {
-    res.send('deleteUser')
-};
-
+// Logout user by deleting token from user's data 
 userController.logout = async (req, res) => {
 
     const userToken = req.token
@@ -90,6 +87,47 @@ userController.logout = async (req, res) => {
     })
 
 };
+
+// Edit user by [id]
+userController.editUser = async (req, res) => {
+
+    const user = req.user 
+    const newUser = await User.findByIdAndUpdate(user._id , {
+        bio : req.body.bio , 
+        fullname : req.body.fullname , 
+    } , {new: true} )
+
+    if(!newUser) res.json({
+        status : false,
+        message : "Something went wrong"
+    })
+
+    res.json({
+        status : true,
+        message : "Success",
+        data : newUser
+    })
+
+};
+
+// Delete user by [id]
+userController.deleteUser = async (req, res) => {
+
+    const user = req.user 
+    const check = await User.findByIdAndRemove({_id : user._id})
+
+    if(!check) res.json({
+        status : false,
+        message : "Something went wrong"
+    })
+
+    res.json({
+        status : true,
+        message : "Success"
+    })
+
+};
+
 
 //////////// Admin //////////// 
 // Admin edits any user by [id]
