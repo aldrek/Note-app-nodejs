@@ -5,7 +5,7 @@ module.exports = (req , res , next) => {
     const apiKey = req.headers.api_key
     if(process.env.API_KEY !== apiKey){
         res.send({
-            error : "You are not allowed to use this api"
+            message : "You are not allowed to use this api"
         })
     }else{
         next()

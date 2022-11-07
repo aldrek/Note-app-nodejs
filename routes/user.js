@@ -16,11 +16,11 @@ router.get('/admin/list', userController.getAnyOrAllUsers)
 router.delete('/admin/:uid', userController.deleteAnyUsers)
 router.put('/admin/edit/:uid', userController.editAnyUser)
 
-router.post('/register', userController.register)
-router.post('/login',apiAuth ,userAuth ,userController.login)
+router.post('/register', apiAuth ,userController.register)
+router.post('/login',apiAuth ,userController.login)
 router.get('/me', userController.getUserInfo)
 router.put('/edit/:uid', userController.editUser)
 router.delete('me', userController.deleteUser)
-router.post('/logout', userController.logout)
+router.post('/logout', apiAuth ,userAuth  ,userController.logout)
 
 module.exports  = router

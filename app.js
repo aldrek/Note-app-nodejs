@@ -13,7 +13,10 @@ var morgan = require('morgan')
 require('dotenv').config()
 
 const app = express()
-app.use(morgan('combined'))
+app.use(express.urlencoded({ extended: true}))
+
+mongoose.Promise = global.Promise
+// app.use(morgan('combined'))
 
 const port = process.env.PORT;
 
@@ -22,7 +25,6 @@ app.use('/user', userRouter)
 app.use('/note', noteRouter)
 
 app.use(morgan('combined'))
-app.use(express.urlencoded({ extended: true}))
 
 mongoose.connect(process.env.SERVER, {
     useNewUrlParser: true,

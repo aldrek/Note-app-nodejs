@@ -1,6 +1,8 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
 var bcrypt = require('bcryptjs');
+const env = require('dotenv')
+const jwt = require('jsonwebtoken');
 
 const userSchema = new mongoose.Schema({
     fullname: {
@@ -8,54 +10,79 @@ const userSchema = new mongoose.Schema({
         require: true
     }, email: {
         type: String,
-        validate:{
+        trim: true,
+        unique : true,
+        validate: {
             validator: validator.isEmail,
             message: '{VALUE} is not a valid email',
             isAsync: false
-          }
+        }, require: true
     }, password: {
         type: String,
-        require: true
+        require: true,
     }, bio: {
         type: String,
         default: ""
     }, access_token: {
         type: String,
-        default: String
+        default: ""
     }, modified: {
         type: Date,
-        default : ""
+        default: Date.now()
     }, created_at: {
         type: Date,
         default: Date.now()
-    }, tokens : [{
+    }, tokens: [{
         token: {
-            type : String ,
+            type: String,
             required: true
         }
-    } ],
+    }],
     avatar: {
         type: Buffer
     }
 
 }, { collection: 'user' })
 
-// Hashing the password before store it in the database 
-userSchema.pre('save', function (next){
-    this.password = this.hashPassword(this.password)
-     next();
-})
-
 // funtion to hash passaword using genSaltSync and hashSync 
-userSchema.methods.hashPassword = function(plainTextPassword) {
+userSchema.methods.hashPassword = function () {
     var salt = bcrypt.genSaltSync(10)
-    return bcrypt.hashSync(plainTextPassword, salt)
+    return bcrypt.hashSync(this.password, salt)
+}
+
+// Check if password matches the value from db
+userSchema.methods.checkPassword = function (password) {
+  const userPassword = this.password
+  return  bcrypt.compareSync(password , userPassword)
+}
+
+userSchema.methods.generateAuthToken = async function () {
+    let  user = this
+
+    const token = jwt.sign({
+        _id: user._id
+    }, process.env.SECRET_KEY ,{ expiresIn: '1d' })
+
+    user.tokens = user.tokens.concat({ token : token })
+    
+    await user.save()
+
+    user.access_token = token
+    
+    console.log( "User :"  + user  )
+
+    return token
 }
 
 // Showing the data object without password value
-userSchema.methods.toJson = function () {
+userSchema.methods.toJSON = function () {
     var obj = this.toObject();
+
+    delete obj.tokens;
     delete obj.password;
+    delete obj._id;
+    delete obj.__v;
+
     return obj;
 }
 
