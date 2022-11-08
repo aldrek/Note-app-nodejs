@@ -84,8 +84,6 @@ noteController.editNote = async (req, res) => {
     };
 }
 
-
-
 // Delete note by [id]
 noteController.deleteNote = async (req, res) => {
 
