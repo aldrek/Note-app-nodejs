@@ -26,7 +26,7 @@ app.use('/note', noteRouter)
 
 app.use(morgan('combined'))
 
-mongoose.connect(process.env.SERVER, {
+mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => {
@@ -43,6 +43,6 @@ mongoose.connect(process.env.SERVER, {
 
 // app.use(loggerMiddleware)
 
-app.listen(process.env.PORT || 3000, () => {
+app.listen(process.env.PORT || 3000 , () => {
     console.log(`Server Has Started`);
 })
