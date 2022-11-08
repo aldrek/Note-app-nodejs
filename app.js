@@ -26,7 +26,7 @@ app.use('/note', noteRouter)
 
 app.use(morgan('combined'))
 
-mongoose.connect(process.env.SERVER, {
+mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => {
