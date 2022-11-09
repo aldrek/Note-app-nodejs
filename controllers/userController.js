@@ -8,9 +8,9 @@ const Note = require('../models/note')
 userController.getUserInfo = (req, res) => {
 
     res.json({
-        status : true,
-        message : "Success",
-        data : req.user
+        status: true,
+        message: "Success",
+        data: req.user
     })
 
 };
@@ -77,7 +77,7 @@ userController.register = async (req, res) => {
 userController.logout = async (req, res) => {
 
     const userToken = req.token
-   
+
     const newTokens = req.user.tokens.filter(t => t.token !== userToken)
 
     await User.findByIdAndUpdate(req.user._id, { tokens: newTokens })
@@ -91,21 +91,21 @@ userController.logout = async (req, res) => {
 // Edit user by [id]
 userController.editUser = async (req, res) => {
 
-    const user = req.user 
-    const newUser = await User.findByIdAndUpdate(user._id , {
-        bio : req.body.bio , 
-        fullname : req.body.fullname , 
-    } , {new: true} )
+    const user = req.user
+    const newUser = await User.findByIdAndUpdate(user._id, {
+        bio: req.body.bio,
+        fullname: req.body.fullname,
+    }, { new: true })
 
-    if(!newUser) res.json({
-        status : false,
-        message : "Something went wrong"
+    if (!newUser) res.json({
+        status: false,
+        message: "Something went wrong"
     })
 
     res.json({
-        status : true,
-        message : "Success",
-        data : newUser
+        status: true,
+        message: "Success",
+        data: newUser
     })
 
 };
@@ -113,17 +113,17 @@ userController.editUser = async (req, res) => {
 // Delete user by [id]
 userController.deleteUser = async (req, res) => {
 
-    const user = req.user 
-    const check = await User.findByIdAndRemove({_id : user._id})
+    const user = req.user
+    const check = await User.findByIdAndRemove({ _id: user._id })
 
-    if(!check) res.json({
-        status : false,
-        message : "Something went wrong"
+    if (!check) res.json({
+        status: false,
+        message: "Something went wrong"
     })
 
     res.json({
-        status : true,
-        message : "Success"
+        status: true,
+        message: "Success"
     })
 
 };
@@ -132,12 +132,26 @@ userController.deleteUser = async (req, res) => {
 //////////// Admin //////////// 
 // Admin edits any user by [id]
 userController.editAnyUser = (req, res) => {
+
+
+
     res.send('Admin editAnyUser')
 };
 
-// return all users for admin 
-userController.getAnyOrAllUsers = (req, res) => {
-    res.send('Admin getAnyOrAllUsers')
+// return all users for admin that has (Pagination, sort, filtering)
+userController.getAnyOrAllUsers = async (req, res) => {
+
+    const { sort, page, limit, age } = req.query;
+
+    const users = await User.find({ "age": { $gt: age - 1 } }).limit(limit).skip(limit * page).sort({'created_at': -1}).exec()
+    const count = await User.countDocuments();
+
+    res.json({
+        totalPages: Math.ceil(count / limit),
+        currentPage: page,
+        data: users
+    })
+
 };
 
 // Admin deletes user

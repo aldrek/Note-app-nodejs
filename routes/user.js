@@ -14,8 +14,8 @@ router.get('/' , async function(req , res){
 })
 
 router.get('/admin/list', apiAuth , userAuth , adminAuth , userController.getAnyOrAllUsers)
-router.delete('/admin/:uid', userController.deleteAnyUsers)
-router.put('/admin/edit/:uid', userController.editAnyUser)
+router.delete('/admin/:uid', apiAuth , userAuth , adminAuth ,  userController.deleteAnyUsers)
+router.put('/admin/edit/:uid', apiAuth , userAuth , adminAuth ,  userController.editAnyUser)
 
 router.post('/register', apiAuth ,userController.register)
 router.post('/login',apiAuth ,userController.login)

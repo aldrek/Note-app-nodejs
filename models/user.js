@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
     }, email: {
         type: String,
         trim: true,
-        unique : true,
+        unique: true,
         validate: {
             validator: validator.isEmail,
             message: '{VALUE} is not a valid email',
@@ -41,11 +41,15 @@ const userSchema = new mongoose.Schema({
     avatar: {
         type: Buffer
     },
-    isAdmin : {
-        type: Boolean ,
-        default : false
+    isAdmin: {
+        type: Boolean,
+        default: false
+    }, age: {
+        type: Number,
+        validator: Number.isInteger,
+        message: '{VALUE} is not an integer value'
     }
-
+    
 }, { collection: 'user' })
 
 userSchema.virtual('notes', {
@@ -62,24 +66,24 @@ userSchema.methods.hashPassword = function () {
 
 // Check if password matches the value from db
 userSchema.methods.checkPassword = function (password) {
-  const userPassword = this.password
-  return  bcrypt.compareSync(password , userPassword)
+    const userPassword = this.password
+    return bcrypt.compareSync(password, userPassword)
 }
 
 userSchema.methods.generateAuthToken = async function () {
-    let  user = this
+    let user = this
 
     const token = jwt.sign({
         _id: user._id
-    }, process.env.SECRET_KEY ,{ expiresIn: '1d' })
+    }, process.env.SECRET_KEY, { expiresIn: '1d' })
 
-    user.tokens = user.tokens.concat({ token : token })
-    
+    user.tokens = user.tokens.concat({ token: token })
+
     await user.save()
 
     user.access_token = token
-    
-    console.log( "User :"  + user  )
+
+    console.log("User :" + user)
 
     return token
 }
