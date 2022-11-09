@@ -40,6 +40,10 @@ const userSchema = new mongoose.Schema({
     }],
     avatar: {
         type: Buffer
+    },
+    isAdmin : {
+        type: Boolean ,
+        default : false
     }
 
 }, { collection: 'user' })
