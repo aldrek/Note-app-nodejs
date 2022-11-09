@@ -4,6 +4,7 @@ const Users = require('../models/user')
 const userController = require('../controllers/userController')
 const userAuth = require('../middleware/auth')
 const apiAuth = require('../middleware/apiAuth')
+const adminAuth = require('../middleware/adminAuth')
 
 router.get('/' , async function(req , res){
     const users = await Users.find({})
@@ -12,7 +13,7 @@ router.get('/' , async function(req , res){
     })
 })
 
-router.get('/admin/list', userController.getAnyOrAllUsers)
+router.get('/admin/list', apiAuth , userAuth , adminAuth , userController.getAnyOrAllUsers)
 router.delete('/admin/:uid', userController.deleteAnyUsers)
 router.put('/admin/edit/:uid', userController.editAnyUser)
 
