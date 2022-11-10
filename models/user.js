@@ -49,7 +49,7 @@ const userSchema = new mongoose.Schema({
         validator: Number.isInteger,
         message: '{VALUE} is not an integer value'
     }
-    
+
 }, { collection: 'user' })
 
 userSchema.virtual('notes', {
@@ -99,9 +99,11 @@ userSchema.methods.toJSON = function () {
     return obj;
 }
 
-userSchema.statics.updateUser = async (req , res , isAdmin) => {
-    
+userSchema.statics.updateUser = async (req, res, isAdmin) => {
+
     const user = req.user
+
+    let avatar = req.file;
 
     const userId = isAdmin === true ? req.params.uid : user._id
 
@@ -109,6 +111,14 @@ userSchema.statics.updateUser = async (req , res , isAdmin) => {
         bio: req.body.bio,
         fullname: req.body.fullname,
     }, { new: true })
+
+    if (avatar) {
+        newUser.avatar = req.file.buffer
+        await newUser.save()
+    } else {
+        console.log("No Avatar Found");
+    }
+
 
     if (!newUser) res.json({
         status: false,
@@ -122,8 +132,8 @@ userSchema.statics.updateUser = async (req , res , isAdmin) => {
     })
 
 }
-userSchema.statics.deleteUser = async (req , res , isAdmin) => {
-    
+userSchema.statics.deleteUser = async (req, res, isAdmin) => {
+
     const user = req.user
 
     const userId = isAdmin === true ? req.params.uid : user._id

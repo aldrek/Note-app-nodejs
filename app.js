@@ -8,23 +8,23 @@ const userRouter = require('./routes/user')
 const noteRouter = require('./routes/note');
 const note = require('./models/note');
 
+const helmet = require("helmet");
+
 var morgan = require('morgan')
 
 require('dotenv').config()
 
 const app = express()
 app.use(express.urlencoded({ extended: true}))
+app.use(helmet());
 
 mongoose.Promise = global.Promise
-// app.use(morgan('combined'))
 
 const port = process.env.PORT;
 
 // Register routers
 app.use('/user', userRouter)
 app.use('/note', noteRouter)
-
-app.use(morgan('combined'))
 
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
@@ -39,6 +39,12 @@ mongoose.connect(process.env.MONGODB_URI, {
 const loggerMiddleware = (req, res, next) => {
     console.log('New request to: ' + req.method + ' ' + req.path)
     next()
+}
+
+var isDevelopment = process.env.NODE_ENV === 'development'
+
+if (isDevelopment) {
+    morgan('tiny')
 }
 
 // app.use(loggerMiddleware)
