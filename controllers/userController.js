@@ -2,7 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 var userController = {};
 const User = require('../models/user')
-const Note = require('../models/note')
+const Note = require('../models/note');
+const user = require('../models/user');
 
 // return user info
 userController.getUserInfo = (req, res) => {
@@ -91,51 +92,22 @@ userController.logout = async (req, res) => {
 // Edit user by [id]
 userController.editUser = async (req, res) => {
 
-    const user = req.user
-    const newUser = await User.findByIdAndUpdate(user._id, {
-        bio: req.body.bio,
-        fullname: req.body.fullname,
-    }, { new: true })
-
-    if (!newUser) res.json({
-        status: false,
-        message: "Something went wrong"
-    })
-
-    res.json({
-        status: true,
-        message: "Success",
-        data: newUser
-    })
-
+    User.updateUser(req , res)
+    
 };
 
 // Delete user by [id]
 userController.deleteUser = async (req, res) => {
-
-    const user = req.user
-    const check = await User.findByIdAndRemove({ _id: user._id })
-
-    if (!check) res.json({
-        status: false,
-        message: "Something went wrong"
-    })
-
-    res.json({
-        status: true,
-        message: "Success"
-    })
-
+    User.deleteUser(req , res , req.user.isAdmin)
 };
 
 
 //////////// Admin //////////// 
 // Admin edits any user by [id]
-userController.editAnyUser = (req, res) => {
+userController.editAnyUser = async (req, res) => {
 
+    User.updateUser(req , res , req.user.isAdmin)
 
-
-    res.send('Admin editAnyUser')
 };
 
 // return all users for admin that has (Pagination, sort, filtering)
@@ -143,9 +115,12 @@ userController.getAnyOrAllUsers = async (req, res) => {
 
     const { sort, page, limit, age } = req.query;
 
-    const users = await User.find({ "age": { $gt: age - 1 } }).limit(limit).skip(limit * page).sort({'created_at': -1}).exec()
+    let users = await User.find({ "age": { $gt: age - 1 } }).limit(limit).skip(limit * page).sort({'created_at': -1}).exec()
     const count = await User.countDocuments();
 
+    // Exculde current user from array
+    users = users.filter(item => item._id.toString() !== req.user._id.toString() )
+    
     res.json({
         totalPages: Math.ceil(count / limit),
         currentPage: page,
@@ -156,7 +131,7 @@ userController.getAnyOrAllUsers = async (req, res) => {
 
 // Admin deletes user
 userController.deleteAnyUsers = (req, res) => {
-    res.send('Admin deleteAnyUsers')
+    User.deleteUser(req , res , req.user.isAdmin)
 };
 
 module.exports = userController;

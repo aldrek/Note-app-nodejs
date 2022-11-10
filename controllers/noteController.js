@@ -48,7 +48,6 @@ noteController.getAllNotesInfo = async (req, res) => {
 
 };
 
-
 // return the user info 
 noteController.createNote = async (req, res) => {
 
@@ -85,6 +84,8 @@ noteController.editNote = async (req, res) => {
 }
 
 // Delete note by [id]
+// Soft delete and allow revoke deletation for a week 
+
 noteController.deleteNote = async (req, res) => {
 
     const check = await Note.findOneAndDelete({ _id: req.params.uid })

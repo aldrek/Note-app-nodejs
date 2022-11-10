@@ -82,8 +82,8 @@ userSchema.methods.generateAuthToken = async function () {
     await user.save()
 
     user.access_token = token
-
-    console.log("User :" + user)
+    // It should be like this
+    //user.test = token
 
     return token
 }
@@ -99,4 +99,48 @@ userSchema.methods.toJSON = function () {
     return obj;
 }
 
-module.exports = mongoose.model('user', userSchema);
+userSchema.statics.updateUser = async (req , res , isAdmin) => {
+    
+    const user = req.user
+
+    const userId = isAdmin === true ? req.params.uid : user._id
+
+    const newUser = await User.findByIdAndUpdate(userId, {
+        bio: req.body.bio,
+        fullname: req.body.fullname,
+    }, { new: true })
+
+    if (!newUser) res.json({
+        status: false,
+        message: "Something went wrong"
+    })
+
+    res.json({
+        status: true,
+        message: "Success",
+        data: newUser
+    })
+
+}
+userSchema.statics.deleteUser = async (req , res , isAdmin) => {
+    
+    const user = req.user
+
+    const userId = isAdmin === true ? req.params.uid : user._id
+
+    const check = await User.findByIdAndRemove({ _id: userId })
+
+    if (!check) res.json({
+        status: false,
+        message: "Something went wrong"
+    })
+
+    res.json({
+        status: true,
+        message: "Success"
+    })
+
+}
+
+const User = mongoose.model('user', userSchema);
+module.exports = User;
