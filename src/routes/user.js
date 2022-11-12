@@ -7,7 +7,6 @@ const apiAuth = require('../middleware/apiAuth')
 const adminAuth = require('../middleware/adminAuth')
 
 const multer = require('multer')
-
 const upload = multer()
 
 router.get('/' , async function(req , res){

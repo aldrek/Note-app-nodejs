@@ -24,7 +24,7 @@ userController.login = async (req, res) => {
     const user = await User.findOne({ email })
 
     //if user not exist than return status 400
-    if (!user) return res.status(400).json({ error: "User not exist" })
+    if (!user || !user.activeFlag) return res.status(400).json({ error: "User not exist" })
     else {
 
         // Check password

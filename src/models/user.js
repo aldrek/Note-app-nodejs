@@ -48,6 +48,10 @@ const userSchema = new mongoose.Schema({
         type: Number,
         validator: Number.isInteger,
         message: '{VALUE} is not an integer value'
+    },
+    activeFlag : {
+        type : Boolean , 
+        default :  true
     }
 
 }, { collection: 'user' })
@@ -132,6 +136,7 @@ userSchema.statics.updateUser = async (req, res, isAdmin) => {
     })
 
 }
+
 userSchema.statics.deleteUser = async (req, res, isAdmin) => {
 
     const user = req.user

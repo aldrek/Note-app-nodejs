@@ -15,7 +15,7 @@ var morgan = require('morgan')
 require('dotenv').config()
 
 const app = express()
-app.use(express.urlencoded({ extended: true}))
+app.use(express.urlencoded({ extended: true }))
 app.use(helmet());
 
 mongoose.Promise = global.Promise
@@ -49,6 +49,12 @@ if (isDevelopment) {
 
 // app.use(loggerMiddleware)
 
-app.listen(process.env.PORT || 3000 , () => {
+// new User({
+//     fullname: "Fake",
+//     email: "aa@ss.com",
+//     password: "123123123"
+// }).save()
+
+app.listen(process.env.PORT || 3000, () => {
     console.log(`Server Has Started`);
 })
