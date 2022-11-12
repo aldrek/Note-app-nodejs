@@ -3,6 +3,7 @@ const validator = require('validator')
 var bcrypt = require('bcryptjs');
 const env = require('dotenv')
 const jwt = require('jsonwebtoken');
+const Note = require('./note')
 
 const userSchema = new mongoose.Schema({
     fullname: {
@@ -49,9 +50,9 @@ const userSchema = new mongoose.Schema({
         validator: Number.isInteger,
         message: '{VALUE} is not an integer value'
     },
-    activeFlag : {
-        type : Boolean , 
-        default :  true
+    activeFlag: {
+        type: Boolean,
+        default: true
     }
 
 }, { collection: 'user' })
@@ -72,6 +73,14 @@ userSchema.methods.hashPassword = function () {
 userSchema.methods.checkPassword = function (password) {
     const userPassword = this.password
     return bcrypt.compareSync(password, userPassword)
+}
+
+userSchema.methods.logoutUser = async function (req) {
+
+    const newTokens = req.user.tokens.filter(t => t.token !== req.token)
+
+    await User.findByIdAndUpdate(req.user._id, { tokens: newTokens })
+
 }
 
 userSchema.methods.generateAuthToken = async function () {
@@ -143,7 +152,27 @@ userSchema.statics.deleteUser = async (req, res, isAdmin) => {
 
     const userId = isAdmin === true ? req.params.uid : user._id
 
-    const check = await User.findByIdAndRemove({ _id: userId })
+    let check = false
+
+    // Deleting user while have admin roles with isHardDelete= true mean that the user will be deleted forever and thier notes too
+    if (isAdmin &&  (req.body.isSoftDelete === 'false')  ) {
+
+        // Delete user by [uid] and the pre delete method gets called 
+
+        await Note.deleteMany({ owner: userId })
+        check = await User.findByIdAndRemove({ _id: userId })
+
+    } else {
+
+        if (!isAdmin) {
+            // logout user
+            user.logoutUser(req)
+        }
+
+        // Delete user
+        check = await User.updateOne({ _id: userId }, { activeFlag: false })
+
+    }
 
     if (!check) res.json({
         status: false,

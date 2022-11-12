@@ -79,9 +79,7 @@ userController.logout = async (req, res) => {
 
     const userToken = req.token
 
-    const newTokens = req.user.tokens.filter(t => t.token !== userToken)
-
-    await User.findByIdAndUpdate(req.user._id, { tokens: newTokens })
+    await req.user.logoutUser(req)
 
     res.json({
         status: "true", message: "Logout completed"
@@ -92,13 +90,13 @@ userController.logout = async (req, res) => {
 // Edit user by [id]
 userController.editUser = async (req, res) => {
 
-    User.updateUser(req , res)
-    
+    User.updateUser(req, res)
+
 };
 
 // Delete user by [id]
 userController.deleteUser = async (req, res) => {
-    User.deleteUser(req , res , req.user.isAdmin)
+    User.deleteUser(req, res, req.user.isAdmin)
 };
 
 
@@ -106,7 +104,7 @@ userController.deleteUser = async (req, res) => {
 // Admin edits any user by [id]
 userController.editAnyUser = async (req, res) => {
 
-    User.updateUser(req , res , req.user.isAdmin)
+    User.updateUser(req, res, req.user.isAdmin)
 
 };
 
@@ -115,12 +113,12 @@ userController.getAnyOrAllUsers = async (req, res) => {
 
     const { sort, page, limit, age } = req.query;
 
-    let users = await User.find({ "age": { $gt: age - 1 } }).limit(limit).skip(limit * page).sort({'created_at': -1}).exec()
+    let users = await User.find({ "age": { $gt: age - 1 } }).limit(limit).skip(limit * page).sort({ 'created_at': -1 }).exec()
     const count = await User.countDocuments();
 
     // Exculde current user from array
-    users = users.filter(item => item._id.toString() !== req.user._id.toString() )
-    
+    users = users.filter(item => item._id.toString() !== req.user._id.toString())
+
     res.json({
         totalPages: Math.ceil(count / limit),
         currentPage: page,
@@ -131,7 +129,7 @@ userController.getAnyOrAllUsers = async (req, res) => {
 
 // Admin deletes user
 userController.deleteAnyUsers = (req, res) => {
-    User.deleteUser(req , res , req.user.isAdmin)
+    User.deleteUser(req, res, req.user.isAdmin)
 };
 
 module.exports = userController;
