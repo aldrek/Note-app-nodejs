@@ -55,7 +55,10 @@ const userSchema = new mongoose.Schema({
         default: true
     }
 
-}, { collection: 'user' })
+}, {
+    collection: 'user', toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+})
 
 userSchema.virtual('notes', {
     ref: 'note',
@@ -108,6 +111,7 @@ userSchema.methods.toJSON = function () {
     delete obj.tokens;
     delete obj.password;
     delete obj.__v;
+    delete obj.avatar;
 
     return obj;
 }
@@ -155,7 +159,7 @@ userSchema.statics.deleteUser = async (req, res, isAdmin) => {
     let check = false
 
     // Deleting user while have admin roles with isHardDelete= true mean that the user will be deleted forever and thier notes too
-    if (isAdmin &&  (req.body.isSoftDelete === 'false')  ) {
+    if (isAdmin && (req.body.isSoftDelete === 'false')) {
 
         // Delete user by [uid] and the pre delete method gets called 
 

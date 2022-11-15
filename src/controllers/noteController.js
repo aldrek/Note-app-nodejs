@@ -34,17 +34,34 @@ noteController.getNotesInfo = async (req, res) => {
 // return the note info 
 noteController.getAllNotesInfo = async (req, res) => {
 
-    const currentUser = req.user
+    try {
 
-    const user = await User.findById({ _id: currentUser._id }).populate('notes').exec(function (err, user) {
-        if (err) res.json({
-            data: []
+        const currentUser = req.user
+        const { sort, page, limit } = req.query;
+
+        let notes = await User.findById(currentUser._id).populate({
+            path: 'notes', options: {
+                limit: parseInt(limit),
+                skip: parseInt(page) * parseInt(limit),
+                sort: { created_at: 1 }
+            }
         })
 
-        res.json({
-            data: user.notes
+        console.log(notes)
+
+        if (!notes) res.json({
+            status: false,
+            data: 'Something went wrong'
         })
-    });
+        else res.json({
+            status: true,
+            data: notes.notes
+        })
+
+    } catch (e) {
+        console.log(e)
+    }
+
 
 };
 
@@ -63,24 +80,8 @@ noteController.createNote = async (req, res) => {
 // Edit note info
 noteController.editNote = async (req, res) => {
 
-    const user = req.user
-    const newNote = await Note.findByIdAndUpdate(req.params.uid, {
-        title: req.body.title,
-        description: req.body.description,
-    }, { new: true })
+    Note.editNote(req, res, req.user.isAdmin)
 
-    if (!newNote) {
-        res.json({
-            status: false,
-            message: "Something went wrong"
-        })
-    } else {
-        res.json({
-            status: true,
-            message: "Success",
-            data: newNote
-        })
-    };
 }
 
 // Delete note by [id]
@@ -88,36 +89,40 @@ noteController.editNote = async (req, res) => {
 
 noteController.deleteNote = async (req, res) => {
 
-    const check = await Note.findOneAndDelete({ _id: req.params.uid })
-    console.log(check)
-
-    if (!check) res.json({
-        status: false,
-        message: "Something went wrong"
-    })
-
-    res.json({
-        status: true,
-        message: "Success"
-    })
+    Note.deleteNote(req, res, req.user.isAdmin)
 
 };
-
 
 //////////// Admin //////////// 
 // Admin edits any user
-noteController.editAnyNote = (req, res) => {
-    res.send('Admin editAnyNote')
+noteController.editAnyNote = async (req, res) => {
+
+    User.editNote(req, res, req.user.isAdmin)
+
 };
 
 // return all notes for admin 
-noteController.getAnyOrAllNotes = (req, res) => {
-    res.send('Admin getAnyOrAllNotes')
+noteController.getAnyOrAllNotes = async (req, res) => {
+
+    const { limit, page, id, age } = req.body
+    const user = req.user
+
+    const result = await Note.find().limit(limit).skip(limit * page).sort({ 'created_at': -1 }).exec()
+    const count = await Note.countDocuments()
+
+    res.json({
+        totalPages: Math.ceil(count / limit),
+        currentPage: page,
+        data: result
+    })
+
 };
 
 // Admin deletes note
-noteController.deleteAnyNote = (req, res) => {
-    res.send('Admin deleteAnyNote')
+noteController.deleteAnyNote = async (req, res) => {
+
+    Note.deleteNote(req, res, req.user.isAdmin)
+
 };
 
 module.exports = noteController

@@ -4,6 +4,7 @@ const Note = require('../models/note');
 const apiAuth = require('../middleware/apiAuth')
 const userAuth = require('../middleware/auth')
 const noteController = require('../controllers/noteController')
+const adminAuth = require('../middleware/adminAuth')
 
 router.get('/' , async function(req , res){
 
@@ -20,9 +21,9 @@ router.get('/' , async function(req , res){
     res.send('success')
 })
 
-router.get('/admin/list', noteController.getAnyOrAllNotes)
-router.put('/admin/update/:uid', noteController.editAnyNote)
-router.delete('/admin/delete/:uid', noteController.deleteAnyNote)
+router.get('/admin/list', apiAuth,  userAuth ,adminAuth , noteController.getAnyOrAllNotes)
+router.put('/admin/update/:uid', apiAuth , userAuth ,adminAuth , noteController.editAnyNote)
+router.delete('/admin/delete/:uid',apiAuth , userAuth ,adminAuth , noteController.deleteAnyNote)
 
 router.post('/create',apiAuth , userAuth ,   noteController.createNote)
 router.get('/all', apiAuth , userAuth , noteController.getAllNotesInfo)
