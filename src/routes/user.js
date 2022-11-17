@@ -3,6 +3,7 @@ const router = express.Router();
 const Users = require("../models/user");
 const userController = require("../controllers/userController");
 const userAuth = require("../middleware/auth");
+const refreshToken = require("../middleware/refreshToken");
 const apiAuth = require("../middleware/apiAuth");
 const adminAuth = require("../middleware/adminAuth");
 
@@ -40,6 +41,7 @@ router.put(
 
 router.post("/register", apiAuth, userController.register);
 router.post("/login", apiAuth, userController.login);
+router.post("/refresh", apiAuth, refreshToken, userController.refresh);
 router.get("/me", apiAuth, userAuth, userController.getUserInfo);
 router.put(
   "/edit/:uid",

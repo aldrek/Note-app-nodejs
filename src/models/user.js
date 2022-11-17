@@ -34,6 +34,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    refresh_token: {
+      type: String,
+      default: "",
+    },
     modified: {
       type: Date,
       default: Date.now(),
@@ -45,6 +49,14 @@ const userSchema = new mongoose.Schema(
     tokens: [
       {
         token: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
+    refresh_tokens: [
+      {
+        refresh_token: {
           type: String,
           required: true,
         },
@@ -101,20 +113,26 @@ userSchema.methods.logoutUser = async function (req) {
 userSchema.methods.generateAuthToken = async function () {
   let user = this;
 
-  const token = jwt.sign(
-    {
-      _id: user._id,
-    },
-    process.env.SECRET_KEY,
-    { expiresIn: "1d" }
+  const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET, {
+    expiresIn: process.env.TOKEN_LIFE,
+  });
+
+  const refreshToken = jwt.sign(
+    { _id: user._id },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: process.env.REFRESH_TOKEN_LIFE }
   );
 
+  // Append token
   user.tokens = user.tokens.concat({ token: token });
+  user.refresh_tokens = user.refresh_tokens.concat({
+    refresh_token: refreshToken,
+  });
 
   await user.save();
 
   user.access_token = token;
-  // It should be like this
+  user.refresh_token = refreshToken;
   //user.test = token
 
   return token;
@@ -128,6 +146,8 @@ userSchema.methods.toJSON = function () {
   delete obj.password;
   delete obj.__v;
   delete obj.avatar;
+  delete obj.id;
+  delete obj.refresh_tokens;
 
   return obj;
 };

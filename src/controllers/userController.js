@@ -4,6 +4,7 @@ var userController = {};
 const User = require("../models/user");
 const Note = require("../models/note");
 const user = require("../models/user");
+const jwt = require("jsonwebtoken");
 
 // return user info
 userController.getUserInfo = (req, res) => {
@@ -35,6 +36,57 @@ userController.login = async (req, res) => {
     } else {
       return res.status(400).json({ error: "Password not correct" });
     }
+  }
+};
+
+userController.refresh = async (req, res) => {
+  // Check if the user has this refresh token
+  // Generate one refresh token and delete the sent one
+
+  try {
+    let user = req.user;
+    let result = req.user.refresh_tokens.filter((token) => {
+      return req.refresh_token.indexOf(token.refresh_token) !== -1;
+    });
+
+    if (req.refresh_token && result != null) {
+      // Generate new access token for user
+
+      const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET, {
+        expiresIn: process.env.TOKEN_LIFE,
+      });
+
+      const refresh = jwt.sign(
+        { _id: user._id },
+        process.env.REFRESH_TOKEN_SECRET,
+        { expiresIn: process.env.REFRESH_TOKEN_LIFE }
+      );
+
+      // Append tokens
+      user.acesss_tokens = user.tokens.concat({ acesss_token: token });
+      user.refresh_tokens = user.refresh_tokens.concat({
+        refresh_token: refresh,
+      });
+
+      console.log(token);
+
+      await user.save();
+      user.acesss_token = token;
+      user.refresh_token = refresh;
+
+      res.send({
+        data: user,
+      });
+    } else {
+      res.status(500).json({
+        status: "false ",
+      });
+    }
+  } catch (e) {
+    console.log(e.message);
+    res.status(500).json({
+      status: "false ",
+    });
   }
 };
 
@@ -87,6 +139,8 @@ userController.deleteUser = async (req, res) => {
 
 //////////// Admin ////////////
 // Admin edits any user by [id]
+// TODO:
+
 userController.editAnyUser = async (req, res) => {
   User.updateUser(req, res, req.user.isAdmin);
 };
