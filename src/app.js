@@ -7,6 +7,7 @@ const userRouter = require("./routes/user");
 const noteRouter = require("./routes/note");
 const note = require("./models/note");
 
+const connection = require("./config/db");
 const helmet = require("helmet");
 const morgan = require("morgan");
 
@@ -23,15 +24,7 @@ mongoose.Promise = global.Promise;
 app.use("/user", userRouter);
 app.use("/note", noteRouter);
 
-mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    console.log("Database connected");
-  })
-  .catch((err) => console.log(err.reason));
+(async () => await connection())();
 
 // This method will be called before any request
 const loggerMiddleware = (req, res, next) => {
