@@ -77,6 +77,10 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    verified: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     collection: "user",
@@ -92,15 +96,21 @@ userSchema.virtual("notes", {
 });
 
 // funtion to hash passaword using genSaltSync and hashSync
-userSchema.methods.hashPassword = function () {
+userSchema.methods.hashPassword = function (toHashPassword) {
   var salt = bcrypt.genSaltSync(10);
-  return bcrypt.hashSync(this.password, salt);
+  return bcrypt.hashSync(toHashPassword, salt);
 };
 
 // Check if password matches the value from db
 userSchema.methods.checkPassword = function (password) {
   const userPassword = this.password;
   return bcrypt.compareSync(password, userPassword);
+};
+
+userSchema.methods.changePassword = async function (newPassword) {
+  hashedPassword = this.hashPassword(newPassword);
+  this.password = hashedPassword;
+  await this.save();
 };
 
 userSchema.methods.logoutUser = async function (req) {

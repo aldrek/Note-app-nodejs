@@ -2,11 +2,13 @@ const mongoose = require("mongoose");
 const express = require("express");
 const User = require("./models/user");
 const Note = require("./models/user");
+const passport = require("passport");
 
 const userRouter = require("./routes/user");
 const noteRouter = require("./routes/note");
 const note = require("./models/note");
 
+const session = require("express-session");
 const connection = require("./config/db");
 const helmet = require("helmet");
 const morgan = require("morgan");
@@ -16,7 +18,15 @@ require("dotenv").config();
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
-app.use(morgan("combined"));
+app.use(
+  session({
+    resave: false,
+    saveUninitialized: true,
+    secret: "SECRET",
+  })
+);
+
+// app.use(morgan("combined"));
 
 mongoose.Promise = global.Promise;
 
@@ -24,6 +34,10 @@ mongoose.Promise = global.Promise;
 app.use("/user", userRouter);
 app.use("/note", noteRouter);
 
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Connection to mongodb
 (async () => await connection())();
 
 // This method will be called before any request

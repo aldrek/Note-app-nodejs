@@ -5,6 +5,9 @@ const User = require("../models/user");
 const Note = require("../models/note");
 const user = require("../models/user");
 const jwt = require("jsonwebtoken");
+const Token = require("../models/token");
+const crypto = require("crypto");
+const sendEmail = require("../utils/sendEmail");
 
 // return user info
 userController.getUserInfo = (req, res) => {
@@ -95,7 +98,7 @@ userController.refresh = async (req, res) => {
 userController.register = async (req, res) => {
   try {
     const user = new User(req.body);
-    user.password = user.hashPassword();
+    user.password = await user.hashPassword(user.password);
     await user.save();
 
     if (user) {
@@ -171,6 +174,66 @@ userController.getAnyOrAllUsers = async (req, res) => {
 // Admin deletes user
 userController.deleteAnyUsers = (req, res) => {
   User.deleteUser(req, res, req.user.isAdmin);
+};
+
+userController.checkVerifyCode = async (req, res) => {
+  try {
+    const user = await User.findOne({ _id: req.params.id });
+    if (!user) return res.status(400).send("Invalid user");
+
+    const token = await Token.findOne({
+      userId: user._id,
+      token: req.params.token,
+    });
+    if (!token) return res.status(400).send("Invalid Token ");
+
+    await User.updateOne({ _id: user._id }, { verified: true });
+    await Token.findByIdAndRemove(token._id);
+
+    res.send("email verified sucessfully");
+  } catch (error) {
+    console.log(error.message);
+    res.status(400).send("An error occured");
+  }
+};
+
+userController.sendVerifyCode = async (req, res) => {
+  try {
+    let user = req.user;
+
+    let token = await new Token({
+      userId: user._id,
+      token: crypto.randomBytes(32).toString("hex"),
+    }).save();
+    //
+    const message = `${process.env.BASE_URL}user/checkVerifyCode/${user.id}/${token.token}`;
+    await sendEmail("Ahmadsalman327@gmail.com", "Verify Email", message);
+
+    res.json({
+      success: true,
+      id: user._id,
+      code: token.token,
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({
+      success: false,
+    });
+  }
+};
+
+userController.changePassword = async (req, res) => {
+  try {
+    const user = req.user;
+
+    await user.changePassword(req.body.password);
+
+    res.json({
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 module.exports = userController;

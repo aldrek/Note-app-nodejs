@@ -6,7 +6,9 @@ const userAuth = require("../middleware/auth");
 const refreshToken = require("../middleware/refreshToken");
 const apiAuth = require("../middleware/apiAuth");
 const adminAuth = require("../middleware/adminAuth");
-
+const passport = require("passport");
+require("../utils/GoogleAuth")(passport);
+const twitter = require("../utils/TwitterAuth");
 const multer = require("multer");
 const upload = multer();
 
@@ -55,5 +57,48 @@ router.put(
 );
 router.delete("/me", apiAuth, userAuth, userController.deleteUser);
 router.post("/logout", apiAuth, userAuth, userController.logout);
+router.post(
+  "/changePassword",
+  apiAuth,
+  userAuth,
+  userController.changePassword
+);
+router.post(
+  "/checkVerifyCode/:id/:token",
+  apiAuth,
+  userAuth,
+  userController.checkVerifyCode
+);
+
+router.post(
+  "/sendVerifyCode",
+  apiAuth,
+  userAuth,
+  userController.sendVerifyCode
+);
+
+router.get(
+  "/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+router.get(
+  "/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login" }),
+  (req, res) => {
+    console.log(req.user);
+    // res.redirect("/profile");
+  }
+);
+
+router.get("/auth/twitter", passport.authenticate("twitter"));
+router.get(
+  "/auth/twitter/callback",
+  passport.authenticate("twitter", { failureRedirect: "/login" }),
+  function (req, res) {
+    // Successful authentication, redirect home.
+    res.redirect("/");
+  }
+);
 
 module.exports = router;
